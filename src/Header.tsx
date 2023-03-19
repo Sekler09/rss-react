@@ -1,18 +1,13 @@
 import React from 'react';
-
-export default class Header extends React.Component<{ location: Location }> {
-  getLocationTitle(pathname: string): string {
-    switch (pathname) {
-      case '/':
-        return 'Home Page';
-      case '/about':
-        return 'About Page';
-      default:
-        return 'Undefined Page';
-    }
-  }
-
+import { NavLink } from 'react-router-dom';
+import './Header.css';
+export default class Header extends React.Component {
   render() {
-    return <header>{this.getLocationTitle(this.props.location.pathname)}</header>;
+    return (
+      <header>
+        <NavLink to="/">Home</NavLink>
+        <NavLink to="/about">About</NavLink>
+      </header>
+    );
   }
 }

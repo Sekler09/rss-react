@@ -1,0 +1,13 @@
+a.active{
+  color: blue;
+  font-weight: bold;
+}
+a{
+  font-size: x-large;
+}
+
+header{
+  display: flex;
+  gap: 20px;
+  padding: 10px 0;
+}

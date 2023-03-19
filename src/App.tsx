@@ -9,7 +9,7 @@ import React from 'react';
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Layout location={location} />,
+    element: <Layout />,
     children: [
       {
         path: '/about',
