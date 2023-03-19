@@ -1,7 +1,7 @@
 import React from 'react';
 import Card from './Card';
 import Searchbar from './Searchbar';
-import { cardType, generateCards } from './utils';
+import { cardType, generateCards } from '../../utils/utils';
 import './Main.css';
 
 export default class Main extends React.Component<

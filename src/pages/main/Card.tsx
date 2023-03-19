@@ -1,5 +1,5 @@
 import React from 'react';
-import { cardType } from './utils';
+import { cardType } from '../../utils/utils';
 import './Card.css';
 export default class Card extends React.Component<cardType> {
   render() {
