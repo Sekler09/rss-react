@@ -5,6 +5,7 @@ import NotFound from './pages/NotFound';
 import About from './pages/about/About';
 import Main from './pages/main/Main';
 import React from 'react';
+import Forms from './pages/forms/Forms';
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
       {
         path: '/',
         element: <Main />,
+      },
+      {
+        path: '/forms',
+        element: <Forms />,
       },
     ],
   },
