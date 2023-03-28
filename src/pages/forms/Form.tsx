@@ -42,6 +42,11 @@ export default class Form extends Component<FormProps, FormState> {
   checkboxRef = createRef<HTMLFieldSetElement>();
   sexRef = createRef<HTMLFieldSetElement>();
   fileRef = createRef<HTMLInputElement>();
+  formRef = createRef<HTMLFormElement>();
+
+  handleClearForm = () => {
+    this.formRef.current?.reset();
+  };
 
   getResultFromRefWithMultipleInput = (
     ref: RefObject<HTMLFieldSetElement>,
@@ -64,6 +69,7 @@ export default class Form extends Component<FormProps, FormState> {
         sex: this.getResultFromRefWithMultipleInput(this.sexRef, 'id')[0] as 'Male' | 'Female',
         photo: Array.from(this.fileRef.current?.files as FileList)[0],
       });
+      this.handleClearForm();
     }
   };
 
@@ -94,7 +100,7 @@ export default class Form extends Component<FormProps, FormState> {
 
   render() {
     return (
-      <form onSubmit={this.handleOnSubmit}>
+      <form onSubmit={this.handleOnSubmit} ref={this.formRef}>
         <fieldset>
           <legend>Pet</legend>
           <input type="text" placeholder="Pet`s name" ref={this.nameRef} />
