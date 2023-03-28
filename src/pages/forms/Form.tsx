@@ -1,9 +1,7 @@
 import { Component, createRef, RefObject, SyntheticEvent } from 'react';
 import './Form.css';
 
-// console.log(URL.createObjectURL(file))
-
-interface cardType {
+export interface cardType {
   name: string;
   date: string;
   type: string;
@@ -19,9 +17,10 @@ interface errorsType {
   photo: boolean;
 }
 
-interface FormProps {}
+interface FormProps {
+  afterSumbit: (card: cardType) => void;
+}
 interface FormState {
-  cards: cardType[];
   errors: errorsType;
 }
 
@@ -29,7 +28,6 @@ export default class Form extends Component<FormProps, FormState> {
   constructor(props: FormProps) {
     super(props);
     this.state = {
-      cards: [],
       errors: {
         name: true,
         date: true,
@@ -57,10 +55,19 @@ export default class Form extends Component<FormProps, FormState> {
 
   handleOnSubmit = (e: SyntheticEvent): void => {
     e.preventDefault();
-    this.checkValid();
+    if (this.checkErrors()) {
+      this.props.afterSumbit({
+        name: this.nameRef.current?.value as string,
+        date: this.dateRef.current?.value as string,
+        type: this.selectRef.current?.value as string,
+        character: this.getResultFromRefWithMultipleInput(this.checkboxRef, 'name'),
+        sex: this.getResultFromRefWithMultipleInput(this.sexRef, 'id')[0] as 'Male' | 'Female',
+        photo: Array.from(this.fileRef.current?.files as FileList)[0],
+      });
+    }
   };
 
-  checkValid = (): void => {
+  checkErrors = (): boolean => {
     const currentErrors: errorsType = {
       name: this.isValidName(this.nameRef.current?.value as string),
       date: !!this.dateRef.current?.value,
@@ -68,6 +75,7 @@ export default class Form extends Component<FormProps, FormState> {
       photo: this.isValidPhoto(this.fileRef),
     };
     this.setState({ ...this.state, errors: currentErrors });
+    return !Object.values(currentErrors).filter((er) => !er).length;
   };
 
   isValidName = (str: string): boolean => {
