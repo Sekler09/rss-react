@@ -1,6 +1,43 @@
-import React, { Component, createRef, SyntheticEvent } from 'react';
+import { Component, createRef, RefObject, SyntheticEvent } from 'react';
+import './Form.css';
 
-export default class Form extends Component {
+// console.log(URL.createObjectURL(file))
+
+interface cardType {
+  name: string;
+  date: string;
+  type: string;
+  character: string[];
+  sex: 'Male' | 'Female';
+  photo: File;
+}
+
+interface errorsType {
+  name: boolean;
+  date: boolean;
+  character: boolean;
+  photo: boolean;
+}
+
+interface FormProps {}
+interface FormState {
+  cards: cardType[];
+  errors: errorsType;
+}
+
+export default class Form extends Component<FormProps, FormState> {
+  constructor(props: FormProps) {
+    super(props);
+    this.state = {
+      cards: [],
+      errors: {
+        name: true,
+        date: true,
+        character: true,
+        photo: true,
+      },
+    };
+  }
   nameRef = createRef<HTMLInputElement>();
   dateRef = createRef<HTMLInputElement>();
   selectRef = createRef<HTMLSelectElement>();
@@ -8,14 +45,43 @@ export default class Form extends Component {
   sexRef = createRef<HTMLFieldSetElement>();
   fileRef = createRef<HTMLInputElement>();
 
-  handleOnSubmit = (e: SyntheticEvent) => {
+  getResultFromRefWithMultipleInput = (
+    ref: RefObject<HTMLFieldSetElement>,
+    field: keyof HTMLInputElement
+  ): string[] => {
+    return Array.from(ref.current?.children as HTMLCollection)
+      .filter((el) => el.tagName == 'INPUT')
+      .filter((el) => (el as HTMLInputElement).checked)
+      .map((el) => (el as HTMLInputElement)[field] as string);
+  };
+
+  handleOnSubmit = (e: SyntheticEvent): void => {
     e.preventDefault();
-    console.log(
-      Array.from(this.checkboxRef.current?.children as HTMLCollection)
-        .filter((el) => el.tagName == 'INPUT')
-        .filter((el) => (el as HTMLInputElement).checked)
-        .map((el) => (el as HTMLInputElement).name)
-    );
+    this.checkValid();
+  };
+
+  checkValid = (): void => {
+    const currentErrors: errorsType = {
+      name: this.isValidName(this.nameRef.current?.value as string),
+      date: !!this.dateRef.current?.value,
+      character: this.isValidCharacter(this.checkboxRef),
+      photo: this.isValidPhoto(this.fileRef),
+    };
+    this.setState({ ...this.state, errors: currentErrors });
+  };
+
+  isValidName = (str: string): boolean => {
+    return str.trim().length >= 3 && str[0] === str[0].toUpperCase();
+  };
+
+  isValidCharacter = (ref: RefObject<HTMLFieldSetElement>): boolean => {
+    return !!this.getResultFromRefWithMultipleInput(ref, 'name').length;
+  };
+
+  isValidPhoto = (ref: RefObject<HTMLInputElement>): boolean => {
+    return ref.current?.files?.length
+      ? Array.from(ref.current?.files as FileList).map((file) => !!file.type.match(/^image\//))[0]
+      : false;
   };
 
   render() {
@@ -23,8 +89,12 @@ export default class Form extends Component {
       <form onSubmit={this.handleOnSubmit}>
         <fieldset>
           <legend>Pet</legend>
-          <input type="text" placeholder="Pet`s name" required ref={this.nameRef} />
-          <input type="date" placeholder="Pet`s birth date" required ref={this.dateRef} />
+          <input type="text" placeholder="Pet`s name" ref={this.nameRef} />
+          <p className="error">
+            {!this.state.errors.name && 'Name must start with capital letter and be at least 3 '}
+          </p>
+          <input type="date" placeholder="Pet`s birth date" ref={this.dateRef} />
+          <p className="error">{!this.state.errors.date && 'Date is required'}</p>
           <select name="Species" id="" ref={this.selectRef}>
             <option>Cat</option>
             <option>Dog</option>
@@ -49,17 +119,19 @@ export default class Form extends Component {
             <input type="checkbox" name="Cute" id="cute" />
             <label htmlFor="cute">Cute</label>
           </fieldset>
+          <p className="error">{!this.state.errors.character && 'At least one must be chosen'}</p>
           <fieldset ref={this.sexRef}>
             <legend>Sex:</legend>
-            <input type="radio" checked name="sex" id="male" />
+            <input type="radio" readOnly checked name="sex" id="male" />
             <label htmlFor="male">Male</label>
-            <input type="radio" name="sex" id="female" />
+            <input type="radio" readOnly name="sex" id="female" />
             <label htmlFor="female">Female</label>
           </fieldset>
           <fieldset>
             <legend>Upload photo</legend>
             <input type="file" name="Photo" id="photo" ref={this.fileRef} />
           </fieldset>
+          <p className="error">{!this.state.errors.photo && 'File must be image'}</p>
           <input type="submit" value="Add" />
         </fieldset>
       </form>
